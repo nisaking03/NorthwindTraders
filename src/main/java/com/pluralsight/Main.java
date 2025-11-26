@@ -21,10 +21,15 @@ public class Main {
 
         String mainMenu = """
                 
+                ★・・・・・・・・・・・・・・★
                 1) Display all products
+                
                 2) Display all customers
+                
                 3) Display all categories
+                
                 0) Exit
+                ★・・・・・・・・・・・・・・★
                 
                 """;
 
@@ -51,10 +56,10 @@ public class Main {
                     }
                     default -> System.out.println("Please insert a valid number!"); //Error message
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 System.out.println("There was an error: " + e.getMessage());
             }
-
         }
     }
 
@@ -64,14 +69,14 @@ public class Main {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
 
-        //try to make connection, make a statement and get a result set
+        // Try to make connection, make a statement and get a result set
         try (
             Connection connection = DriverManager.getConnection(URL, username, password);
             Statement statement = connection.createStatement();
             ResultSet results1 = statement.executeQuery(query1);
                 )
         {
-            //getting the information and turning it into an object
+            // Getting the information and turning it into an object
             while (results1.next()) {
                 int productID = results1.getInt("ProductID");
                 String productName = results1.getString("ProductName");
