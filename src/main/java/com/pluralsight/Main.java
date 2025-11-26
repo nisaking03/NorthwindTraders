@@ -3,36 +3,57 @@ package com.pluralsight;
 import java.sql.*;
 
 public class Main {
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
-        String username = "root";
-        String password = "yearup";
-        String database = "northwind";
+    public static String username = "root";
+    public static String password = "yearup";
+    public static String dataBase = "northwind";
+    public static String URL = "jdbc:mysql://localhost:3306/" + dataBase;
 
-        String databaseurl = "jdbc:mysql://localhost:3306/" + database;
+    public static void main(String[] args) {
 
-        // Load the MySQL Driver
-        Class.forName("com.mysql.cj.jdbc.Driver");
+        System.out.println("""
+                ╭ ────────────── • ──────────── ╮
+                  Welcome To NorthWind Traders!
+                ╰ ────────────── • ──────────── ╯
+                """);
 
-        // 1. open a connection to the database
-        // use the database URL to point to the correct database
+
+        String mainMenu = """
+                 1) Display all products
+                 2) Display all customers
+                 3) Display all categories
+                 0) Exit
+                """;
+
+        while (true) {
+            System.out.print(mainMenu);
+            int command = ConsoleHelper.promptForInt("Enter here"); //prompt for menu
+
+            switch (command) {
+                case 1 -> displayAllProducts();
+                case 2 -> displayAllCustomers();
+                case 3 -> displayAllCategories();
+                case 0 -> {
+                    System.out.println("Goodbye!");
+                    System.exit(0); // Force closes program
+                }
+                default -> System.out.println("Please insert a valid number!"); //Error message
+            }
+        }
+    }
+
+    private void displayAllProducts(){
+        String query1 = "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM products";
+
         Connection connection;
         connection = DriverManager.getConnection(
-                databaseurl,
+                URL,
                 username,
                 password);
 
         // Create statement
         // The statement is tied to the open connection
         Statement statement = connection.createStatement();
-
-        //-------------------------------------------------------------------------------------------------------------
-
-        String query1 = """
-        SELECT
-        productID, productName, UnitPrice, UnitsInStock
-        
-        FROM products""";
 
         ResultSet results1 = statement.executeQuery(query1);
 
@@ -42,46 +63,66 @@ public class Main {
             double unitPrice = results1.getDouble("UnitPrice");
             int unitsInStock = results1.getInt("UnitsInStock");
 
-            System.out.printf("%-10d %-30s %-10.2f %-10d\n",productID, productName, unitPrice, unitsInStock);
-
+            System.out.printf("%-10d %-30s %-10.2f %-10d\n", productID, productName, unitPrice, unitsInStock);
         }
-
         results1.close();
-
-        //-------------------------------------------------------------------------------------------------------------
-        // Define your query
-        String query2 = """
-                SELECT
-                
-                CompanyName, ContactName, orders.orderid
-                
-                FROM northwind.customers
-                left join orders on customers.CustomerID = orders.customerid
-                order by ContactName;
-                """;
-
-        // 2. Execute your query
-        ResultSet results2 = statement.executeQuery(query2);
-
-        // process the results
-        while (results2.next()) {
-            String companyName = results2.getString("CompanyName");
-            String contactName = results2.getString("ContactName");
-            int orderId = results2.getInt("orderid");
-
-            System.out.printf("%-30s %-30s %20d\n", companyName, contactName, orderId);
-
-        }
-
-        results2.close();
-
-        //-------------------------------------------------------------------------------------------------------------
-
-        // 3. Close the connection
-        results.close();
         statement.close();
         connection.close();
+    }
 
+    private void displayAllCustomers(){
+        String query2 = "SELECT ContactName, CompanyName, City, Country, Phone FROM customers ORDER BY Country";
+
+        Connection connection;
+        connection = DriverManager.getConnection(
+                URL,
+                username,
+                password);
+
+        // Create statement
+        // The statement is tied to the open connection
+        Statement statement = connection.createStatement();
+
+        ResultSet results2 = statement.executeQuery(query2);
+
+        while (results2.next()) {
+            String contactName = results2.getString("ContactName");
+            String companyName = results2.getString("CompanyName");
+            String city = results2.getString("City");
+            String country = results2.getString("Country");
+            String phone = results2.getString("Phone");
+
+            System.out.printf("%-10s %-30s %-10.2s %-10s %-10s\n", contactName, companyName, city, country, phone);
+        }
+        results2.close();
+        statement.close();
+        connection.close();
+    }
+
+    private void displayAllCategories(){
+        String query3 = "SELECT CategoryID, CategoryName  FROM categories ORDER BY CategoryID";
+
+        Connection connection;
+        connection = DriverManager.getConnection(
+                URL,
+                username,
+                password);
+
+        // Create statement
+        // The statement is tied to the open connection
+        Statement statement = connection.createStatement();
+
+        ResultSet results3 = statement.executeQuery(query3);
+
+        while (results3.next()) {
+            int categoryID = results3.getInt("CategoryID");
+            String categoryName = results3.getString("CategoryName");
+
+            System.out.printf("%-10d %-30s\n", categoryID, categoryName);
+        }
+        results3.close();
+        statement.close();
+        connection.close();
     }
 }
 // In your pom.xml file, add a dependency to the MySQL Driver.
